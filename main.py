@@ -1,41 +1,33 @@
+from flask import Flask, render_template, request
 import openai
-import os
-import sys
 
-openai.api_key = os.environ['OPENAI_API_KEY']
+app = Flask(__name__)
 
-if openai.api_key == "":
-  sys.stderr.write("""
-  You haven't set up your API key yet.
+# Add your OpenAI API key here
+openai.api_key = "YOUR_API_KEY"
 
-  If you don't have an API key yet, visit:
+@app.route("/", methods=["GET", "POST"])
+def home():
+    ai_response = None
+    if request.method == "POST":
+        decision = request.form["decision"]
+        mood = request.form["mood"]
 
-  https://platform.openai.com/signup
+        prompt = f"Help me make a decision. Decision: {decision}. Mood: {mood}. Give me ranked suggestions with short reasoning."
 
-  1. Make an account or sign in
-  2. Click "View API Keys" from the top right menu.
-  3. Click "Create new secret key"
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a friendly AI that helps people make everyday decisions."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=150,
+            temperature=0.7
+        )
 
-  Then, open the Secrets Tool and add OPENAI_API_KEY as a secret.
-  """)
-  exit(1)
+        ai_response = response["choices"][0]["message"]["content"]
 
-response = openai.chat.completions.create(
-    model="gpt-4",
-    messages=[{
-        "role": "system",
-        "content": "You are a helpful assistant."
-    }, {
-        "role": "user",
-        "content": "Who won the world series in 2020?"
-    }, {
-        "role":
-        "assistant",
-        "content":
-        "The Los Angeles Dodgers won the World Series in 2020."
-    }, {
-        "role": "user",
-        "content": "Where was it played?"
-    }])
+    return render_template("index.html", ai_response=ai_response)
 
-print(response)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=81)
