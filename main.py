@@ -1,3 +1,4 @@
+gunicorn main:app
 import os
 import logging
 from flask import Flask, render_template, request, flash
