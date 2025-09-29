@@ -4,12 +4,14 @@ from flask import Flask, render_template, request, flash
 from openai import OpenAI
 import openai
 
-app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "mydefaultsecret")
-
-# Configure logging
+# Configure logging first
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+app = Flask(__name__)
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-key-only-for-local-testing")
+if app.config["SECRET_KEY"] == "dev-key-only-for-local-testing":
+    logger.warning("Using default SECRET_KEY for development. Set SECRET_KEY environment variable for production.")
 
 # OpenAI client
 try:
@@ -67,7 +69,7 @@ Guidelines:
 
             # Make API call with error handling
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
@@ -104,6 +106,10 @@ Guidelines:
         except openai.BadRequestError as e:
             error_message = "Invalid request. Please try rephrasing your question."
             logger.error(f"OpenAI bad request: {e}")
+            
+        except openai.NotFoundError:
+            error_message = "AI model is currently unavailable. Please try again later."
+            logger.error("OpenAI model not found")
             
         except Exception as e:
             error_message = "An unexpected error occurred. Please try again."
