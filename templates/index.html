@@ -7,8 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* === CSS Reset & Body === */
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -20,6 +20,7 @@
             position: relative;
             overflow-x: hidden;
         }
+
         body::before {
             content: '';
             position: absolute;
@@ -28,17 +29,34 @@
             pointer-events: none;
         }
 
-        /* === Container & Header === */
         .container { max-width: 600px; width: 100%; position: relative; z-index: 1; }
-        .header { text-align: center; margin-bottom: 40px; animation: fadeInUp 0.8s ease-out; }
-        .logo img { width: 80px; height: 80px; animation: pulse 2s infinite; border-radius: 16px; }
-        h1 { color: white; font-size: 2.5rem; font-weight: 700; margin-bottom: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .subtitle { color: rgba(255,255,255,0.9); font-size: 1.1rem; font-weight: 300; letter-spacing: 0.5px; }
-        .feature-icons { display: flex; justify-content: center; gap: 30px; margin-top: 20px; opacity: 0.8; }
-        .feature-icon { color: white; font-size: 1.2rem; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .feature-icon span { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* === Form Card === */
+        .header { text-align: center; margin-bottom: 40px; animation: fadeInUp 0.8s ease-out; }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px auto;
+            background: url('/static/logo.png') no-repeat center center;
+            background-size: contain;
+            animation: pulse 2s infinite;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
         .form-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -49,6 +67,7 @@
             position: relative;
             overflow: hidden;
         }
+
         .form-card::before {
             content: '';
             position: absolute;
@@ -57,9 +76,21 @@
             background-size: 200% 100%;
             animation: shimmer 3s ease-in-out infinite;
         }
+
         .form-group { margin-bottom: 25px; position: relative; }
-        .form-group label { display: block; margin-bottom: 8px; color: #2d3748; font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d3748;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .input-wrapper { position: relative; }
+
         input[type="text"], select {
             width: 100%;
             padding: 16px 20px;
@@ -71,7 +102,13 @@
             transition: all 0.3s ease;
             outline: none;
         }
-        input[type="text"]:focus, select:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); transform: translateY(-2px); }
+
+        input[type="text"]:focus, select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
         select {
             cursor: pointer;
             appearance: none;
@@ -80,65 +117,78 @@
             background-repeat: no-repeat;
             background-size: 16px;
         }
+
         .submit-btn {
-            width: 100%; padding: 18px;
+            width: 100%;
+            padding: 18px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; border: none; border-radius: 12px;
-            font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
+
         .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); }
         .submit-btn:active { transform: translateY(0); }
         .submit-btn i { margin-right: 8px; }
 
-        /* === Response & Error === */
-        .response-card {
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);
-            border-radius: 20px; padding: 30px; margin-top: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); animation: fadeInUp 0.6s ease-out;
-            border-left: 4px solid #10b981;
+        .response-card, .error-card {
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            animation: fadeInUp 0.6s ease-out;
         }
+
+        .response-card { background: rgba(255, 255, 255, 0.95); border-left: 4px solid #10b981; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         .response-card h2 { color: #2d3748; font-size: 1.3rem; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; }
         .response-card h2 i { margin-right: 10px; color: #10b981; }
         .response-text { color: #4a5568; font-size: 1rem; line-height: 1.6; white-space: pre-wrap; }
-        .error-card {
-            background: rgba(254, 242, 242, 0.95); border-left: 4px solid #ef4444;
-            backdrop-filter: blur(20px); border-radius: 20px; padding: 25px; margin-top: 30px;
-            animation: fadeInUp 0.6s ease-out;
-        }
+
+        .error-card { background: rgba(254, 242, 242, 0.95); border-left: 4px solid #ef4444; padding: 25px; }
         .error-card h2 { color: #dc2626; font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; }
         .error-card h2 i { margin-right: 10px; }
 
-        /* === Loading Animation === */
         .loading { opacity: 0.7; pointer-events: none; }
         .loading .submit-btn::after {
             content: '';
-            position: absolute; top: 50%; left: 50%;
-            width: 20px; height: 20px; margin: -10px 0 0 -10px;
-            border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white;
-            border-radius: 50%; animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 20px; height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
-        /* === Animations === */
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* === Responsive === */
         @media (max-width: 768px) {
             body { padding: 15px; }
             h1 { font-size: 2rem; }
             .form-card { padding: 25px; }
             .subtitle { font-size: 1rem; }
         }
+
+        .feature-icons { display: flex; justify-content: center; gap: 30px; margin-top: 20px; opacity: 0.8; }
+        .feature-icon { color: white; font-size: 1.2rem; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .feature-icon span { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">
-                <img src="{{ url_for('static', filename='logo.png') }}" alt="DecideWithAI Logo">
-            </div>
+            <div class="logo"></div>
             <h1>DecideWithAI</h1>
             <p class="subtitle">Smart decisions powered by artificial intelligence</p>
             <div class="feature-icons">
@@ -193,11 +243,14 @@
             const form = this;
             const submitBtn = form.querySelector('.submit-btn');
             const btnText = submitBtn.querySelector('.btn-text');
+
             form.classList.add('loading');
             btnText.textContent = 'Thinking...';
+            
             const inputs = form.querySelectorAll('input, select, button');
             inputs.forEach(input => input.disabled = true);
         });
+
         document.querySelectorAll('input, select').forEach(element => {
             element.addEventListener('focus', function() { this.parentElement.style.transform = 'scale(1.02)'; });
             element.addEventListener('blur', function() { this.parentElement.style.transform = 'scale(1)'; });
