@@ -1,40 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Decide With AI</title>
+    <meta charset="UTF-8">
+    <title>DecideWithAI</title>
 </head>
 <body>
-    <h1>Decision Helper</h1>
-    <form id="decision-form">
-        <label>Decision:</label>
-        <input type="text" name="decision" id="decision" required><br>
-        <button type="submit">Ask AI</button>
-    </form>
-
-    <h2>AI Suggestions:</h2>
-    <p id="ai-response"></p>
+    <h1>Decide With AI</h1>
+    <input type="text" id="decisionInput" placeholder="Enter your decision">
+    <button id="generateBtn">Generate with AI</button>
+    <p id="result"></p>
 
     <script>
-        const form = document.getElementById('decision-form');
-        const responseEl = document.getElementById('ai-response');
+        const generateBtn = document.getElementById("generateBtn");
+        const decisionInput = document.getElementById("decisionInput");
+        const resultEl = document.getElementById("result");
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const decision = document.getElementById('decision').value;
-
-            const res = await fetch('/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ decision })
-            });
-
-            const data = await res.json();
-
-            if (data.error) {
-                responseEl.textContent = "Error: " + data.error;
-            } else {
-                responseEl.textContent = data.response;
+        generateBtn.addEventListener("click", async () => {
+            const decision = decisionInput.value;
+            if (!decision) {
+                resultEl.textContent = "Please enter a decision.";
+                return;
             }
+
+            resultEl.textContent = "Thinking...";
+
+            try {
+                const formData = new FormData();
+                formData.append("decision", decision);
+
+                const response = await fetch("/generate", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    resultEl.textContent = data.error;
+                } else {
+                    resultEl.textContent = data.response;
+                }
+            } catch (err) {
+                resultEl.textContent = "Error contacting server.";
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+</html>
         });
     </script>
 </body>
