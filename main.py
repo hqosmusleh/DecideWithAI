@@ -1,40 +1,39 @@
+from flask import Flask, render_template, request, jsonify
 import os
-from flask import Flask, render_template, request
-from openai import OpenAI
+import openai
+
+# Set global API key for OpenAI
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "mydefaultsecret")
 
-# OpenAI client
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def home():
-    ai_response = ""
-    if request.method == "POST":
-        decision = request.form.get("decision", "")
-        mood = request.form.get("mood", "")
+    return render_template("index.html")
 
-        if not decision.strip():
-            return render_template("index.html", ai_response="Oops! Please enter a decision to proceed.")
+@app.route("/generate", methods=["POST"])
+def generate():
+    try:
+        user_input = request.form.get("decision", "").strip()
 
-        prompt = f"Help me make a decision. Decision: {decision}. Mood: {mood}. Give me ranked suggestions with short reasoning."
+        if not user_input:
+            return jsonify({"error": "Please enter a decision to proceed."}), 400
 
-        response = client.chat.completions.create(
+        # Call OpenAI ChatCompletion API
+        response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a friendly AI assistant."},
-                {"role": "user", "content": prompt}
-            ]
+                {"role": "system", "content": "You are a helpful decision-making assistant."},
+                {"role": "user", "content": user_input}
+            ],
+            max_tokens=100
         )
-        ai_response = response.choices[0].message.content
 
-    return render_template("index.html", ai_response=ai_response)
+        ai_reply = response.choices[0].message.content.strip()
+        return jsonify({"response": ai_reply})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
-
-# -----------------------------
-if __name__ == "__main__":
-    # Set host="0.0.0.0" for Render or other cloud services
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
