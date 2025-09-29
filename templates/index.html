@@ -1,28 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>DecideWithAI</title>
+    <title>Decide With AI</title>
 </head>
 <body>
-    <h1>Decide With AI</h1>
-    <input type="text" id="decisionInput" placeholder="Enter your decision">
-    <button id="generateBtn">Generate with AI</button>
-    <p id="result"></p>
+    <h1>Decision Helper</h1>
+    <form method="POST">
+        <label>Decision:</label>
+        <input type="text" name="decision" required><br>
+        <label>Mood:</label>
+        <input type="text" name="mood"><br>
+        <button type="submit">Ask AI</button>
+    </form>
 
-    <script>
-        const generateBtn = document.getElementById("generateBtn");
-        const decisionInput = document.getElementById("decisionInput");
-        const resultEl = document.getElementById("result");
+    {% if ai_response %}
+        <h2>AI Suggestions:</h2>
+        <p>{{ ai_response }}</p>
+    {% endif %}
+</body>
+</html>
 
-        generateBtn.addEventListener("click", async () => {
-            const decision = decisionInput.value;
-            if (!decision) {
-                resultEl.textContent = "Please enter a decision.";
-                return;
-            }
-
-            resultEl.textContent = "Thinking...";
 
             try {
                 const formData = new FormData();
