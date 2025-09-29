@@ -1,23 +1,22 @@
 import os
 import logging
 from flask import Flask, render_template, request
-
 import openai
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize Flask app
+# Initialize Flask
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-key-only-for-local-testing")
 if app.config["SECRET_KEY"] == "dev-key-only-for-local-testing":
     logger.warning("Using default SECRET_KEY for development. Set SECRET_KEY environment variable for production.")
 
-# Set OpenAI API key
+# Initialize OpenAI API key
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 if not openai.api_key:
-    logger.error("OPENAI_API_KEY not set. AI requests will fail.")
+    logger.error("OPENAI_API_KEY not set! AI functionality will fail.")
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -30,7 +29,7 @@ def home():
             decision = request.form.get("decision", "").strip()
             mood = request.form.get("mood", "Neutral").strip()
 
-            # Validate input
+            # Input validation
             if not decision:
                 error_message = "Please enter a decision you need help with."
                 return render_template("index.html", error_message=error_message)
@@ -39,7 +38,7 @@ def home():
                 error_message = "Please keep your decision under 500 characters."
                 return render_template("index.html", error_message=error_message)
 
-            # Mood context for AI
+            # Prompt construction
             mood_context = {
                 "Happy": "The user is feeling positive and optimistic. Provide upbeat, encouraging suggestions.",
                 "Neutral": "The user is feeling balanced and calm. Provide balanced, logical suggestions.",
@@ -61,33 +60,45 @@ Guidelines:
 
             user_prompt = f"I need help deciding: {decision}\n\nMy current mood: {mood}\n\nPlease provide your best suggestions with reasoning."
 
-            # Make API call
-            response = openai.ChatCompletion.create(
+            # Call OpenAI API
+            response = openai.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
                 max_tokens=300,
-                temperature=0.7
+                temperature=0.7,
+                timeout=30
             )
 
-            ai_response = response.choices[0].message['content'].strip()
-
+            ai_response = response.choices[0].message.content.strip() if response.choices else ""
             if not ai_response:
                 error_message = "AI generated an empty response. Please try again."
 
         except openai.error.AuthenticationError:
-            error_message = "AI service authentication failed. Please check configuration."
+            error_message = "AI service authentication failed. Check your API key."
             logger.error("OpenAI authentication failed")
 
         except openai.error.RateLimitError:
-            error_message = "Too many requests. Please wait a moment and try again."
+            error_message = "Too many requests. Please wait and try again."
             logger.error("OpenAI rate limit exceeded")
 
-        except openai.error.APIError as e:
-            error_message = "AI service error. Please try again later."
-            logger.error(f"OpenAI API error: {e}")
+        except openai.error.Timeout:
+            error_message = "AI service timed out. Try again with a shorter question."
+            logger.error("OpenAI timeout error")
+
+        except openai.error.APIConnectionError:
+            error_message = "Unable to connect to AI service. Check your internet connection."
+            logger.error("OpenAI connection error")
+
+        except openai.error.InvalidRequestError as e:
+            error_message = "Invalid request. Please rephrase your question."
+            logger.error(f"OpenAI bad request: {e}")
+
+        except openai.error.ServiceUnavailableError:
+            error_message = "AI model unavailable. Try again later."
+            logger.error("OpenAI model not found")
 
         except Exception as e:
             error_message = "An unexpected error occurred. Please try again."
@@ -98,7 +109,3 @@ Guidelines:
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-    app.run(host="0.0.0.0", port=port)
-@app.route("/healthz")
-def healthz():
-    return "OK", 200
