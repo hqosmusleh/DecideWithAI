@@ -77,7 +77,9 @@ Guidelines:
                 timeout=30
             )
             
-            ai_response = response.choices[0].message.content.strip()
+            ai_response = response.choices[0].message.content
+            if ai_response:
+                ai_response = ai_response.strip()
             
             # Validate response
             if not ai_response:
@@ -91,13 +93,13 @@ Guidelines:
             error_message = "Too many requests. Please wait a moment and try again."
             logger.error("OpenAI rate limit exceeded")
             
-        except openai.APIConnectionError:
-            error_message = "Unable to connect to AI service. Please check your internet connection and try again."
-            logger.error("OpenAI connection error")
-            
         except openai.APITimeoutError:
             error_message = "AI service timed out. Please try again with a shorter question."
             logger.error("OpenAI timeout error")
+            
+        except openai.APIConnectionError:
+            error_message = "Unable to connect to AI service. Please check your internet connection and try again."
+            logger.error("OpenAI connection error")
             
         except openai.BadRequestError as e:
             error_message = "Invalid request. Please try rephrasing your question."
