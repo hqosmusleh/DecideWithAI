@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request
 import openai
+import os
 
 app = Flask(__name__)
 
-# Add your OpenAI API key here
-openai.api_key = "YOUR_API_KEY"
+# Set your OpenAI API key here (from Replit Secrets)
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -18,14 +19,14 @@ def home():
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a friendly AI that helps people make everyday decisions."},
+                {"role": "system", "content": "You are a friendly AI assistant that helps users make everyday decisions."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=150,
             temperature=0.7
         )
 
-        ai_response = response["choices"][0]["message"]["content"]
+        ai_response = response.choices[0].message.content
 
     return render_template("index.html", ai_response=ai_response)
 
