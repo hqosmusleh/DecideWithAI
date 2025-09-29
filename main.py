@@ -1,9 +1,13 @@
+# main.py
 from flask import Flask, render_template, request
-import os
 import openai
+import os
 
 app = Flask(__name__)
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Set your OpenAI API key here or via environment variable
+openai.api_key = os.getenv("OPENAI_API_KEY")  # Recommended
+# openai.api_key = "YOUR_API_KEY"  # Or hardcode directly (not recommended)
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -11,30 +15,27 @@ def home():
     error_message = None
 
     if request.method == "POST":
-        decision = request.form.get("decision")
-        mood = request.form.get("mood")
-        
+        decision = request.form.get("decision", "").strip()
+        mood = request.form.get("mood", "").strip()
+
         if not decision:
-            error_message = "Please enter a decision you need help with."
+            error_message = "Please enter a decision for the AI to consider."
         else:
             try:
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
+                response = openai.chat.completions.create(
+                    model="gpt-4",
                     messages=[
-                        {"role": "system", "content": "You are a helpful decision-making assistant."},
-                        {"role": "user", "content": f"User decision: {decision}\nMood: {mood}"}
+                        {
+                            "role": "system",
+                            "content": "You are a helpful assistant that gives advice based on a user's mood and decision."
+                        },
+                        {
+                            "role": "user",
+                            "content": f"Decision: {decision}\nMood: {mood}"
+                        }
                     ],
-                    max_tokens=150,
+                    max_tokens=300,
+                    temperature=0.7
                 )
-                ai_response = response.choices[0].message.content.strip()
-            except Exception as e:
-                error_message = str(e)
-
-    return render_template("index.html", ai_response=ai_response, error_message=error_message)
-
-@app.route("/healthz")
-def health():
-    return "OK", 200
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+                ai_response = r_
+n.get("PORT", 10000)))
