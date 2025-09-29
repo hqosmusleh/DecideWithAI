@@ -1,27 +1,38 @@
-from flask import Flask, request, jsonify
 import os
+from flask import Flask, render_template, request
 from openai import OpenAI
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "mydefaultsecret")
 
-# Initialize OpenAI client
+# Initialize OpenAI client correctly
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-@app.route("/generate", methods=["POST"])
-def generate():
-    decision = request.form.get("decision")
-    if not decision:
-        return jsonify({"error": "Please enter a decision to proceed."})
+@app.route("/", methods=["GET", "POST"])
+def home():
+    ai_response = ""
+    if request.method == "POST":
+        decision = request.form.get("decision", "").strip()
+        mood = request.form.get("mood", "").strip()
+        
+        if not decision:
+            ai_response = "Please enter a decision to proceed."
+        else:
+            prompt = f"Help me make a decision. Decision: {decision}. Mood: {mood}. Give me ranked suggestions with short reasoning."
+            
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "You are a friendly AI assistant."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                ai_response = response.choices[0].message.content
+            except Exception as e:
+                ai_response = f"Error contacting OpenAI: {str(e)}"
 
-    # Call OpenAI's chat completion API
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": f"Help me decide: {decision}"}]
-    )
-    result = response.choices[0].message.content
-    return jsonify({"response": result})
+    return render_template("index.html", ai_response=ai_response)
 
-@app.route("/")
-def index():
-    # Serves your index.html file
-    return app.send_static_file("index.html")
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
