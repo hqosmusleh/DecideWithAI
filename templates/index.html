@@ -8,91 +8,55 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f9f9f9;
-            color: #333;
             text-align: center;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 50px;
         }
         img.logo {
-            width: 150px;
-            margin-bottom: 20px;
+            max-width: 200px;
+            margin-bottom: 30px;
         }
-        textarea, select {
-            width: 100%;
+        form {
+            margin-bottom: 30px;
+        }
+        input[type="text"] {
+            width: 300px;
             padding: 10px;
-            margin: 10px 0 20px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
+            font-size: 16px;
         }
         button {
             padding: 10px 20px;
-            font-size: 1rem;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
+            font-size: 16px;
             cursor: pointer;
         }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .response {
+        .decision {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
             margin-top: 20px;
-            padding: 15px;
-            border-radius: 5px;
-            background-color: #eef;
-            text-align: left;
-            white-space: pre-wrap;
         }
         .error {
+            color: red;
+            font-weight: bold;
             margin-top: 20px;
-            padding: 15px;
-            border-radius: 5px;
-            background-color: #fee;
-            color: #900;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="DecideWithAI Logo" class="logo">
-        <h1>DecideWithAI</h1>
-        <form method="POST">
-            <label for="decision">Enter the decision you need help with:</label>
-            <textarea id="decision" name="decision" rows="4" placeholder="Type your decision here...">{{ request.form.get('decision', '') }}</textarea>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="DecideWithAI Logo" class="logo">
+    
+    <h1>DecideWithAI</h1>
 
-            <label for="mood">Your current mood:</label>
-            <select id="mood" name="mood">
-                {% set current_mood = request.form.get('mood', 'Neutral') %}
-                <option value="Happy" {% if current_mood == 'Happy' %}selected{% endif %}>Happy</option>
-                <option value="Neutral" {% if current_mood == 'Neutral' %}selected{% endif %}>Neutral</option>
-                <option value="Anxious" {% if current_mood == 'Anxious' %}selected{% endif %}>Anxious</option>
-                <option value="Excited" {% if current_mood == 'Excited' %}selected{% endif %}>Excited</option>
-                <option value="Tired" {% if current_mood == 'Tired' %}selected{% endif %}>Tired</option>
-                <option value="Confused" {% if current_mood == 'Confused' %}selected{% endif %}>Confused</option>
-            </select>
+    <form method="POST">
+        <input type="text" name="decision_input" placeholder="Enter your decision question">
+        <button type="submit">Get Decision</button>
+    </form>
 
-            <button type="submit">Get Advice</button>
-        </form>
+    {% if error_msg %}
+        <div class="error">{{ error_msg }}</div>
+    {% endif %}
 
-        {% if error_message %}
-        <div class="error">{{ error_message }}</div>
-        {% endif %}
-
-        {% if ai_response %}
-        <div class="response">{{ ai_response }}</div>
-        {% endif %}
-    </div>
-</body>
-</html>
-    </script>
+    {% if decision %}
+        <div class="decision">{{ decision }}</div>
+    {% endif %}
 </body>
 </html>
