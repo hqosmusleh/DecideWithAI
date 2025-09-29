@@ -1,60 +1,25 @@
-# main.py
-from flask import Flask, render_template, request
-import openai
-import os
+# main.pyfrom flask import Flask, render_template, request
 
-# -----------------------------
-# Configuration
-# -----------------------------
 app = Flask(__name__)
 
-# Make sure your OpenAI API key is set as an environment variable
-# For example, in Render: Environment -> Add OPENAI_API_KEY
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-# -----------------------------
-# Routes
-# -----------------------------
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def home():
-    ai_response = None
-    error_message = None
+    return render_template("index.html")
 
-    if request.method == "POST":
-        decision = request.form.get("decision", "").strip()
-        mood = request.form.get("mood", "").strip()
+@app.route("/ai", methods=["POST"])
+def ai():
+    user_decision = request.form.get("decision")
 
-        if not decision:
-            error_message = "Please enter a decision to proceed."
-        else:
-            try:
-                # Call OpenAI API (Chat Completions)
-                response = openai.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": "You are a helpful assistant giving advice for decisions based on the user's mood."
-                        },
-                        {
-                            "role": "user",
-                            "content": f"I need help with this decision: '{decision}'. My mood is '{mood}'."
-                        }
-                    ],
-                    temperature=0.7,
-                    max_tokens=250
-                )
-                ai_response = response.choices[0].message.content.strip()
+    if not user_decision:
+        return render_template("index.html", ai_result="⚠️ Please enter a decision to proceed.")
 
-            except openai.error.AuthenticationError:
-                error_message = "Authentication failed. Please check your OpenAI API key."
-            except openai.error.OpenAIError as e:
-                error_message = f"OpenAI API error: {str(e)}"
-            except Exception as e:
-                error_message = f"An unexpected error occurred: {str(e)}"
+    # Example AI logic (replace with your own later)
+    ai_output = f"🤖 AI suggests: Based on '{user_decision}', the smarter choice would be option A."
 
-    return render_template("index.html", ai_response=ai_response, error_message=error_message)
+    return render_template("index.html", ai_result=ai_output)
 
+if __name__ == "__main__":
+    app.run(debug=True)
 
 # -----------------------------
 # Run the App
