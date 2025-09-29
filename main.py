@@ -1,28 +1,39 @@
-# main.pyfrom flask import Flask, render_template, request
+import os
+from flask import Flask, render_template, request
+from openai import OpenAI
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "mydefaultsecret")
 
-@app.route("/")
+# OpenAI client
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+@app.route("/", methods=["GET", "POST"])
 def home():
-    return render_template("index.html")
+    ai_response = ""
+    if request.method == "POST":
+        decision = request.form.get("decision", "")
+        mood = request.form.get("mood", "")
 
-@app.route("/ai", methods=["POST"])
-def ai():
-    user_decision = request.form.get("decision")
+        if not decision.strip():
+            return render_template("index.html", ai_response="Oops! Please enter a decision to proceed.")
 
-    if not user_decision:
-        return render_template("index.html", ai_result="⚠️ Please enter a decision to proceed.")
+        prompt = f"Help me make a decision. Decision: {decision}. Mood: {mood}. Give me ranked suggestions with short reasoning."
 
-    # Example AI logic (replace with your own later)
-    ai_output = f"🤖 AI suggests: Based on '{user_decision}', the smarter choice would be option A."
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a friendly AI assistant."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        ai_response = response.choices[0].message.content
 
-    return render_template("index.html", ai_result=ai_output)
+    return render_template("index.html", ai_response=ai_response)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
 
-# -----------------------------
-# Run the App
 # -----------------------------
 if __name__ == "__main__":
     # Set host="0.0.0.0" for Render or other cloud services
